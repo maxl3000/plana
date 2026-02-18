@@ -5,9 +5,9 @@
 @import "./mod/ilya.css";
 
 body {
-  background-color: green
+  background-color: rgb(255, 230, 0);
 }
 .heading-style-h1 {
-  font-size: 2rem;
-  color: blue;
+  font-size: 4rem;
+  color: rgb(27, 221, 105);
 }
