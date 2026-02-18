@@ -26,10 +26,29 @@ in Cursor (lokal)    -->  JS + CSS Dateien      -->  und zeigt ihn an
 
 1. Gehe zu **https://github.com/maxl3000/webflow-dev-setup**
 2. Klicke auf **"Use this template"** → **"Create a new repository"**
-3. Name: z.B. `kundenname-webflow` (private empfohlen)
-4. Klicke **"Create repository"**
+3. Name: z.B. `kundenname-webflow`
+4. Visibility: **Public** waehlen (noetig fuer Vercel Free Plan, siehe Hinweis unten)
+5. Klicke **"Create repository"**
 
-### 1.2 — Mac Terminal: Projekt klonen
+> **Vercel Free Plan:** Damit Vercel automatisch deployen kann, muss das
+> GitHub-Repo **public** sein. Bei einem privaten Repo verweigert Vercel
+> den Deploy, wenn der Git-Committer kein Vercel-Team-Mitglied ist.
+> Alternative: Vercel Pro Plan oder `npx vercel --prod` CLI Deploy.
+
+### 1.2 — Git: E-Mail richtig konfigurieren
+
+Bevor du anfaengst, stelle sicher, dass deine Git-E-Mail mit deinem
+**GitHub-Account** uebereinstimmt. Sonst blockiert Vercel deine Deploys.
+
+```bash
+# Pruefen:
+git config --global user.email
+
+# Falls falsch, aendern (gleiche E-Mail wie bei GitHub):
+git config --global user.email "deine-github@email.com"
+```
+
+### 1.3 — Mac Terminal: Projekt klonen
 
 Oeffne das Terminal (oder das Cursor-Terminal) und fuehre aus:
 
@@ -39,7 +58,7 @@ git clone https://github.com/maxl3000/kundenname-webflow.git
 cd kundenname-webflow
 ```
 
-### 1.3 — Cursor: Projekt oeffnen
+### 1.4 — Cursor: Projekt oeffnen
 
 In Cursor: **File → Open Folder** → den geklonten Ordner auswaehlen.
 
@@ -124,6 +143,11 @@ Gehe zu **Project Settings** → **Custom Code** → **Head Code** und fuege ein
 ```
 
 **Wichtig:** Ersetze `DEINE-URL.vercel.app` durch deine echte Vercel-URL!
+
+> **ACHTUNG:** Alle Fallback-URLs MUESSEN mit `https://` beginnen!
+> Ohne `https://` interpretiert der Browser die URL als relativen Pfad
+> und das CSS/JS wird nicht geladen. Falsch: `'plana.vercel.app/app.css'`
+> Richtig: `'https://plana.vercel.app/app.css'`
 
 ### 3.3 — Webflow: Publish
 
@@ -254,14 +278,15 @@ fuer deinen Kunden sichtbar zu machen.
 
 ## Checkliste: Neues Kundenprojekt
 
-- [ ] GitHub: Repo aus Template erstellen
+- [ ] GitHub: Repo aus Template erstellen (**public** fuer Vercel Free Plan)
+- [ ] Git: E-Mail pruefen (`git config --global user.email` = GitHub-E-Mail)
 - [ ] Mac: Repo klonen, in Cursor oeffnen
 - [ ] Vercel: Repo importieren, URL notieren
 - [ ] Vercel: Deploy Hook erstellen (optional)
 - [ ] Cursor Terminal: `npm run setup` ausfuehren
 - [ ] Webflow: `data-taxi` auf page-wrapper setzen
 - [ ] Webflow: `data-taxi-view` auf main-wrapper setzen
-- [ ] Webflow: Head Code einfuegen (JS + CSS mit Vercel-URL)
+- [ ] Webflow: Head Code einfuegen (JS + CSS mit Vercel-URL, **alle URLs mit https://**)
 - [ ] Webflow: Publish
 - [ ] Cursor: `npm run dev` → testen → `git push` → live!
 
@@ -278,3 +303,7 @@ fuer deinen Kunden sichtbar zu machen.
 | CSS aendert sich nicht | Hard-Refresh (Cmd+Shift+R) im Browser |
 | `pnpm ENOENT` Build-Fehler | `pnpm-lock.yaml` loeschen, nur `package-lock.json` behalten |
 | Taxi.js Fehler | `data-taxi` und `data-taxi-view` Attribute in Webflow pruefen |
+| Vercel: "not a member of the team" | Git-E-Mail stimmt nicht mit GitHub ueberein. `git config --global user.email` pruefen. Repo muss public sein (Free Plan). |
+| CSS/JS laedt nicht auf Live-Seite | Fallback-URLs im Webflow Head Code pruefen: `https://` darf nicht fehlen! |
+| SSL-Zertifikate nicht gefunden | `npm run setup-ssl` ausfuehren BEVOR `USE_SSL=true` in `.env` gesetzt wird. |
+| Mixed Content (HTTPS/HTTP) | Webflow ist HTTPS, localhost ist HTTP → Browser blockiert. SSL einrichten oder nur ueber Vercel-Fallback testen. |
