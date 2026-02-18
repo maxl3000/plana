@@ -5,5 +5,9 @@
 @import "./mod/ilya.css";
 
 body {
-  /* your global styles */
+  background-color: green
+}
+.heading-style-h1 {
+  font-size: 2rem;
+  color: blue;
 }

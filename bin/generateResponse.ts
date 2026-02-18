@@ -215,21 +215,24 @@ function generateIndexHtml(outputs: BuildOutput[]) {
   `;
 }
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
 export function generateResponse(filePath: string, outputs: BuildOutput[]) {
-  // Ignore favicon requests
   if (filePath === "/favicon.ico") {
     return new Response(null, { status: 204 });
   }
 
-  // Serve index page
   if (filePath === "/") {
     const html = generateIndexHtml(outputs);
     return new Response(html, {
-      headers: { "Content-Type": "text/html" },
+      headers: { "Content-Type": "text/html", ...corsHeaders },
     });
   }
 
-  // Serve files from dist (CSS at dist/out.css, dist/app.css)
   const file = Bun.file(`dist${filePath}`);
   const contentType =
     {
@@ -241,6 +244,7 @@ export function generateResponse(filePath: string, outputs: BuildOutput[]) {
   return new Response(file, {
     headers: {
       "Content-Type": contentType,
+      ...corsHeaders,
     },
   });
 }
