@@ -3,13 +3,15 @@
 @import "./mod/fluid-type.css";
 @import "./mod/utils.css";
 @import "./mod/ilya.css";
+@import "./mod/bunny-player.css";
 
-body {
-  background-color: rgb(0, 94, 255);
+/* Button arrow hover: Pfeil dreht 45° nach oben */
+.button.is-icon:hover .arrow-icon {
+  transform: rotate(-45deg);
 }
-.heading-style-h1 {
-  font-size: 2rem;
-  color: rgb(27, 221, 105);
-  background-color: rgb(255, 0, 0);
+
+.arrow-icon {
+  display: inline-block;
+  transition: transform 0.2s ease;
 }
 

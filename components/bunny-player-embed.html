@@ -1,0 +1,157 @@
+<!--
+  Bunny.net Player Component – Standalone Embed
+  Kopiere diesen gesamten Block in Webflow (Embed vor </body>) oder in jede Seite.
+  Verwendung: <div data-bunny-player data-library="759" data-video="VIDEO-ID"></div>
+-->
+<style>
+  [data-bunny-player] {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+  }
+  [data-bunny-player] .bunny-player__iframe-wrap {
+    position: absolute;
+    inset: 0;
+  }
+  [data-bunny-player] .bunny-player__iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+  [data-bunny-player] .bunny-player__poster {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    transition: opacity 0.3s;
+    cursor: pointer;
+    z-index: 1;
+  }
+  [data-bunny-player].bunny-player--playing .bunny-player__poster {
+    opacity: 0;
+    pointer-events: none;
+  }
+</style>
+<script>
+(function() {
+  var EMBED_BASE = "https://iframe.mediadelivery.net/embed";
+  var PLAYERJS_URL = "https://assets.mediadelivery.net/playerjs/playerjs-latest.min.js";
+  var playerjsLoadPromise = null;
+
+  function loadPlayerJs() {
+    if (typeof window !== "undefined" && window.playerjs) return Promise.resolve(window.playerjs);
+    if (playerjsLoadPromise) return playerjsLoadPromise;
+    playerjsLoadPromise = new Promise(function(resolve, reject) {
+      var s = document.createElement("script");
+      s.src = PLAYERJS_URL;
+      s.async = true;
+      s.onload = function() { resolve(window.playerjs); };
+      s.onerror = function() { reject(new Error("Player.js failed to load")); };
+      document.head.appendChild(s);
+    });
+    return playerjsLoadPromise;
+  }
+
+  function parseBool(val, fallback) {
+    if (val === undefined) return fallback;
+    return val === "true" || val === "1";
+  }
+
+  function buildEmbedUrl(library, video, el) {
+    var params = [];
+    params.push("autoplay=" + (el.dataset.autoplay !== undefined ? el.dataset.autoplay : "false"));
+    if (el.dataset.muted !== undefined) params.push("muted=" + el.dataset.muted);
+    if (el.dataset.loop !== undefined) params.push("loop=" + el.dataset.loop);
+    params.push("preload=" + (el.dataset.preload !== undefined ? el.dataset.preload : "true"));
+    if (el.dataset.start !== undefined) params.push("t=" + encodeURIComponent(el.dataset.start));
+    if (el.dataset.playsinline !== undefined) params.push("playsinline=" + el.dataset.playsinline);
+    if (el.dataset.rememberPosition !== undefined) params.push("rememberPosition=" + el.dataset.rememberPosition);
+    if (el.dataset.captions !== undefined) params.push("captions=" + encodeURIComponent(el.dataset.captions));
+    if (el.dataset.chromecast !== undefined) params.push("chromecast=" + el.dataset.chromecast);
+    if (el.dataset.disableAirplay !== undefined) params.push("disableAirplay=" + el.dataset.disableAirplay);
+    if (el.dataset.disableIosPlayer !== undefined) params.push("disableIosPlayer=" + el.dataset.disableIosPlayer);
+    if (el.dataset.showHeatmap !== undefined) params.push("showHeatmap=" + el.dataset.showHeatmap);
+    if (el.dataset.showSpeed !== undefined) params.push("showSpeed=" + el.dataset.showSpeed);
+    return EMBED_BASE + "/" + library + "/" + video + "?" + params.join("&");
+  }
+
+  function ensurePreconnect() {
+    if (!document.querySelector('link[href="https://iframe.mediadelivery.net"]')) {
+      var link = document.createElement("link");
+      link.rel = "preconnect";
+      link.href = "https://iframe.mediadelivery.net";
+      document.head.appendChild(link);
+    }
+  }
+
+  function init(el) {
+    if (el._bunnyInit) return;
+    el._bunnyInit = true;
+
+    var library = el.dataset.library;
+    var video = el.dataset.video;
+    var thumbnail = el.dataset.thumbnail;
+
+    if (!library || !video) {
+      console.warn("[bunny-player] data-library und data-video sind erforderlich");
+      return;
+    }
+
+    ensurePreconnect();
+
+    var wrap = document.createElement("div");
+    wrap.className = "bunny-player__iframe-wrap";
+
+    var iframe = document.createElement("iframe");
+    iframe.className = "bunny-player__iframe";
+    iframe.src = buildEmbedUrl(library, video, el);
+    iframe.loading = "lazy";
+    iframe.setAttribute("allow", "accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen");
+    iframe.allowFullscreen = parseBool(el.dataset.fullscreen, true);
+
+    wrap.appendChild(iframe);
+    el.appendChild(wrap);
+
+    function hidePoster() {
+      el.classList.add("bunny-player--playing");
+      if (poster) poster.style.pointerEvents = "none";
+    }
+
+    var poster = null;
+    if (thumbnail) {
+      poster = document.createElement("div");
+      poster.className = "bunny-player__poster";
+      poster.setAttribute("aria-hidden", "true");
+      poster.style.backgroundImage = "url(" + thumbnail + ")";
+      poster.style.backgroundSize = "cover";
+      poster.style.backgroundPosition = "center";
+      el.insertBefore(poster, wrap);
+
+      poster.addEventListener("click", function handler() {
+        hidePoster();
+        poster.removeEventListener("click", handler);
+      });
+
+      loadPlayerJs().then(function(playerjs) {
+        var p = new playerjs.Player(iframe);
+        p.on("play", hidePoster);
+      }).catch(function() {
+        iframe.addEventListener("load", function() { setTimeout(hidePoster, 150); }, { once: true });
+      });
+    }
+  }
+
+  function run() {
+    document.querySelectorAll("[data-bunny-player]").forEach(init);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", run);
+  } else {
+    run();
+  }
+
+  document.addEventListener("turbo:load", run);
+  document.addEventListener("turbo:render", run);
+})();
+</script>

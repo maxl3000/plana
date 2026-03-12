@@ -32,6 +32,13 @@ async function build() {
       console.log("✅ Public directory copied successfully!");
     }
 
+    // Copy components directory if it exists
+    if (existsSync("components")) {
+      console.log("\n📁 Copying components directory...");
+      await cp("components", "dist/components", { recursive: true });
+      console.log("✅ Components copied successfully!");
+    }
+
     const buildDuration = Date.now() - startTime;
     console.log("✅ Build complete!");
 
