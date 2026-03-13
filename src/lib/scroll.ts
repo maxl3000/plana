@@ -65,3 +65,15 @@ handleEditor((isEditor) => {
     Scroll.start();
   }
 });
+
+// Finsweet "disable-scrolling" uses body-scroll-lock which sets overflow:hidden
+// on <body>. Lenis ignores native overflow, so we bridge the gap here.
+const observer = new MutationObserver(() => {
+  const isLocked = document.body.style.overflow === "hidden";
+  isLocked ? Scroll.stop() : Scroll.start();
+});
+
+observer.observe(document.body, {
+  attributes: true,
+  attributeFilter: ["style"],
+});
