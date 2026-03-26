@@ -1,5 +1,5 @@
 import { Scroll } from "@lib/scroll";
-import { Pages } from "@lib/pages";
+// import { Pages } from "@lib/pages";
 import { runInitial } from "@lib/pages";
 import { tick } from "@/utils/tick";
 
@@ -7,7 +7,7 @@ import { tick } from "@/utils/tick";
 
 class _App {
   private scroll = Scroll;
-  pages = Pages;
+  // pages = Pages;
 
   constructor() {
     console.log("App", performance.now().toFixed(2));

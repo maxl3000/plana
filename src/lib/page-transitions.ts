@@ -12,8 +12,13 @@ export class Transition extends BaseTransition {
     trigger: string | false | HTMLElement;
     done: Function;
   }) {
-    await App.pages.transitionOut({ from, trigger });
-    done();
+    try {
+      await App.pages.transitionOut({ from, trigger });
+    } catch (e) {
+      console.error("[Transition] onLeave error:", e);
+    } finally {
+      done();
+    }
   }
 
   async onEnter({
@@ -25,8 +30,13 @@ export class Transition extends BaseTransition {
     trigger: string | false | HTMLElement;
     done: Function;
   }) {
-    await App.pages.transitionIn({ to, trigger });
-    done();
+    try {
+      await App.pages.transitionIn({ to, trigger });
+    } catch (e) {
+      console.error("[Transition] onEnter error:", e);
+    } finally {
+      done();
+    }
   }
 }
 

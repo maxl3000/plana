@@ -60,31 +60,33 @@ export class _Pages extends Core {
   async transitionOut({ from, trigger }: TransitionParams) {
     tick.cleanupFpsDisplay();
 
-    await Promise.allSettled([
-      await runPageOut(),
-      // ...
-    ]);
+    await runPageOut();
 
     runDestroy();
-    Scroll.toTop();
+    try {
+      Scroll.toTop();
+    } catch (e) {
+      console.warn("[Pages] Scroll.toTop failed:", e);
+    }
   }
 
   async transitionIn({ to, trigger }: TransitionParams) {
     createCycles();
-    Scroll.resize();
+    try {
+      Scroll.resize();
+    } catch (e) {
+      console.warn("[Pages] Scroll.resize failed:", e);
+    }
     Resize.update();
     tick.restoreFpsDisplay();
 
     // State.PAGE = to;
 
-    await Promise.allSettled([
-      await runPageIn(),
-      // ...
-    ]);
+    await runPageIn();
 
     runMount();
     // resetWebflow();
   }
 }
 
-export const Pages = new _Pages();
+// export const Pages = new _Pages();
