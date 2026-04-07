@@ -6,12 +6,15 @@ type SubscriberFn = (data: any) => void;
 
 // (*) TODO: disable on webflow editor
 
+const CONSENT_SELECTORS = "[fs-consent-instance], [fs-consent-element], .consent_prefs_list";
+
 const SCROLL_CONFIG = {
   infinite: false,
   lerp: 0.1,
   smoothWheel: true,
   touchMultiplier: 2,
   // autoResize: true,
+  prevent: (node: HTMLElement) => node.closest(CONSENT_SELECTORS) !== null,
 };
 
 class _Scroll extends Lenis {
@@ -25,6 +28,18 @@ class _Scroll extends Lenis {
   #scroll(data: any) {
     // console.log("scroll", { scroll, limit, progress, velocity, time });
     this.notify(data);
+  }
+
+  #locks = new Set<string>();
+
+  lock(reason: string) {
+    this.#locks.add(reason);
+    this.stop();
+  }
+
+  unlock(reason: string) {
+    this.#locks.delete(reason);
+    if (this.#locks.size === 0) this.start();
   }
 
   toTop() {
@@ -75,7 +90,7 @@ const syncScrollLock = () => {
     document.body.style.overflowY === "hidden" ||
     document.documentElement.style.overflow === "hidden";
 
-  bodyLocked ? Scroll.stop() : Scroll.start();
+  bodyLocked ? Scroll.lock("body-overflow") : Scroll.unlock("body-overflow");
 };
 
 const scrollLockObserver = new MutationObserver(syncScrollLock);
@@ -89,3 +104,31 @@ scrollLockObserver.observe(document.documentElement, {
   attributes: true,
   attributeFilter: ["style", "class"],
 });
+
+// Consent Pro V2: lock page scroll while banner or preferences panel is visible.
+// `data-lenis-prevent` on scrollable consent containers ensures inner scroll
+// still works natively even while Lenis page-scroll is stopped.
+const root = document.documentElement;
+
+function tagConsentElements() {
+  document
+    .querySelectorAll<HTMLElement>(CONSENT_SELECTORS)
+    .forEach((el) => el.setAttribute("data-lenis-prevent", ""));
+}
+
+root.addEventListener("consentpro:banner-shown", () => {
+  tagConsentElements();
+  Scroll.lock("consent-banner");
+});
+root.addEventListener("consentpro:banner-hidden", () => Scroll.unlock("consent-banner"));
+root.addEventListener("consentpro:preferences-shown", () => {
+  tagConsentElements();
+  Scroll.lock("consent-preferences");
+});
+root.addEventListener("consentpro:preferences-hidden", () => Scroll.unlock("consent-preferences"));
+
+tagConsentElements();
+const bannerEl = document.querySelector<HTMLElement>('[fs-consent-element="banner"]');
+if (bannerEl && bannerEl.offsetParent !== null) {
+  Scroll.lock("consent-banner");
+}

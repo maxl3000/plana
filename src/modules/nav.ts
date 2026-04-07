@@ -18,7 +18,7 @@ export default function (element: HTMLElement, dataset: any) {
       for (const mutation of mutations) {
         if (mutation.attributeName !== "aria-expanded") continue;
         isMenuOpen = toggle.getAttribute("aria-expanded") === "true";
-        isMenuOpen ? Scroll.stop() : Scroll.start();
+        isMenuOpen ? Scroll.lock("nav") : Scroll.unlock("nav");
         if (isMenuOpen && isHidden) show();
       }
     };
@@ -63,10 +63,10 @@ export default function (element: HTMLElement, dataset: any) {
     menuObserver?.disconnect();
     unsubScroll();
     gsap.set(navbar, { clearProps: "transform" });
-    Scroll.start();
+    Scroll.unlock("nav");
   });
 
   State.on("PAGE", () => {
-    Scroll.start();
+    Scroll.unlock("nav");
   });
 }
