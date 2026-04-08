@@ -15,6 +15,19 @@ export const isTabletOrBelow = (): boolean => {
 };
 
 /**
+ * Check if device is low-end (weak CPU/GPU, low memory, or reduced motion)
+ * Used to skip heavy WebGL/3D content in favor of static fallbacks
+ */
+export const isLowEndDevice = (): boolean => {
+  if (prefersReducedMotion()) return true;
+  if (isTabletOrBelow()) return true;
+  const cores = navigator.hardwareConcurrency || 2;
+  const memory = (navigator as any).deviceMemory || 4;
+  if (cores <= 4 && memory <= 4) return true;
+  return false;
+};
+
+/**
  * Check if viewport width is mobile (<=768px)
  * @returns {boolean} True if viewport is mobile
  */
