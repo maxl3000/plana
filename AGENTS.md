@@ -1,6 +1,6 @@
 # Webflow Development Agent
 
-This agent is specialized in managing the Webflow development setup, focusing on a modular JavaScript architecture, GSAP animations, and Taxi.js transitions.
+This agent is specialized in managing the Webflow development setup, focusing on a modular JavaScript architecture, GSAP animations, and Lenis smooth scrolling.
 
 ## Project Guidelines
 

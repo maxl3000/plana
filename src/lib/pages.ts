@@ -1,38 +1,9 @@
-import { App } from "@/app";
-import State from "@lib/hey";
-import { Core, Renderer } from "@unseenco/taxi";
-import { Transition } from "@lib/page-transitions";
-import { Scroll } from "@lib/scroll";
-import { Resize } from "@lib/subs";
 import {
   createCycles,
-  runDestroy,
   runMount,
-  runPageOut,
   runPageIn,
 } from "@/modules/_";
-import { resetWebflow } from "@/webflow/reset-webflow";
 import { tick } from "@/utils/tick";
-
-document.querySelectorAll("[data-taxi-view]").forEach((el) => {
-  const val = el.getAttribute("data-taxi-view");
-  if (val && val !== "") el.setAttribute("data-taxi-view", "");
-});
-
-const PAGES_CONFIG = {
-  links: "a:not([target]):not([href^=\\#]):not([data-taxi-ignore])",
-  removeOldContent: true,
-  allowInterruption: false,
-  bypassCache: false,
-};
-
-export interface TransitionParams {
-  from?: Element | HTMLElement;
-  to?: Element | HTMLElement;
-  trigger: HTMLAnchorElement;
-  wrapper: HTMLElement | any;
-  destination?: string;
-}
 
 export function runInitial() {
   createCycles();
@@ -40,53 +11,3 @@ export function runInitial() {
   runMount();
   tick.restoreFpsDisplay();
 }
-
-export class _Pages extends Core {
-  constructor() {
-    super({
-      ...PAGES_CONFIG,
-      renderers: {
-        default: Renderer,
-        true: Renderer,
-      },
-      transitions: {
-        default: Transition,
-      },
-    });
-  }
-
-  // async init() {}
-
-  async transitionOut({ from, trigger }: TransitionParams) {
-    tick.cleanupFpsDisplay();
-
-    await runPageOut();
-
-    runDestroy();
-    try {
-      Scroll.toTop();
-    } catch (e) {
-      console.warn("[Pages] Scroll.toTop failed:", e);
-    }
-  }
-
-  async transitionIn({ to, trigger }: TransitionParams) {
-    createCycles();
-    try {
-      Scroll.resize();
-    } catch (e) {
-      console.warn("[Pages] Scroll.resize failed:", e);
-    }
-    Resize.update();
-    tick.restoreFpsDisplay();
-
-    // State.PAGE = to;
-
-    await runPageIn();
-
-    runMount();
-    // resetWebflow();
-  }
-}
-
-// export const Pages = new _Pages();

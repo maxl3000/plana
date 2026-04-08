@@ -1,6 +1,6 @@
 # Webflow Development Setup
 
-This project is a custom development environment for Webflow, using a modular JavaScript system, GSAP for animations, and Taxi.js for page transitions.
+This project is a custom development environment for Webflow, using a modular JavaScript system, GSAP for animations, and Lenis for smooth scrolling.
 
 ## Project Structure
 
@@ -15,7 +15,7 @@ This project is a custom development environment for Webflow, using a modular Ja
 2. **Lifecycle Hooks**: Use `onMount`, `onDestroy`, `onPageIn`, and `onPageOut` from `@/modules/_`.
 3. **Interactivity**: Use `onView` for viewport detection and `onTrack` for scroll progress.
 4. **Subscriptions**: Use `Raf` for animation frames and `Resize` for window resizing from `@lib/subs`.
-5. **Page Transitions**: Managed by Taxi.js in `src/lib/pages.ts` and `src/lib/page-transitions.ts`.
+5. **Initial Setup**: Managed in `src/lib/pages.ts` (module scanning and lifecycle boot).
 
 ## Environment Detection
 
