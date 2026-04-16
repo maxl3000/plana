@@ -23,6 +23,17 @@ class _Scroll extends Lenis {
   constructor() {
     super(SCROLL_CONFIG);
     this.on("scroll", this.#scroll.bind(this));
+
+    // Images/fonts loading after init can change content height without
+    // triggering ResizeObserver reliably. Force a recalculation once all
+    // assets are ready so the scroll limit matches the actual page height.
+    if (document.readyState === "complete") {
+      requestAnimationFrame(() => this.resize());
+    } else {
+      window.addEventListener("load", () => {
+        requestAnimationFrame(() => this.resize());
+      });
+    }
   }
 
   #scroll(data: any) {
