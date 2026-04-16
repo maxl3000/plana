@@ -24,16 +24,16 @@ class _Scroll extends Lenis {
     super(SCROLL_CONFIG);
     this.on("scroll", this.#scroll.bind(this));
 
-    // Images/fonts loading after init can change content height without
-    // triggering ResizeObserver reliably. Force a recalculation once all
-    // assets are ready so the scroll limit matches the actual page height.
-    if (document.readyState === "complete") {
-      requestAnimationFrame(() => this.resize());
-    } else {
-      window.addEventListener("load", () => {
-        requestAnimationFrame(() => this.resize());
-      });
-    }
+    // Lenis' built-in autoResize observes <html>, whose border-box stays
+    // viewport-sized when overflow:hidden is set. Late-loading third-party
+    // widgets (Elfsight, Turnstile, ConsentPro) inject DOM *after*
+    // window.load and change scrollHeight without triggering that observer.
+    // Watching <body> catches every content-height change reliably.
+    let resizeRaf = 0;
+    new ResizeObserver(() => {
+      cancelAnimationFrame(resizeRaf);
+      resizeRaf = requestAnimationFrame(() => this.resize());
+    }).observe(document.body);
   }
 
   #scroll(data: any) {
