@@ -2,6 +2,9 @@
   "buildCommand": "npm run bundle",
   "devCommand": "npm run api",
   "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/", "destination": "/api/feed" }
+  ],
   "headers": [
     {
       "source": "/(.*)",
